@@ -11,6 +11,8 @@ func NewRouter(userHandler *UserHandler) *gin.Engine {
 		{
 			auth.POST("/register", userHandler.Register)
 			auth.POST("/login", userHandler.Login)
+			auth.POST("/refresh", userHandler.Refresh)
+			auth.POST("/logout", userHandler.Logout)
 		}
 	}
 

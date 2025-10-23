@@ -20,6 +20,9 @@ type Config struct {
 	JWTSecretKey               string        `mapstructure:"JWT_SECRET_KEY"`
 	AccessTokenDurationMinutes time.Duration `mapstructure:"JWT_ACCESS_TOKEN_MINUTES"`
 	RefreshTokenDurationHours  time.Duration `mapstructure:"JWT_REFRESH_TOKEN_HOURS"`
+
+	CookieDomain string `mapstructure:"COOKIE_DOMAIN"`
+	CookieSecure bool   `mapstructure:"COOKIE_SECURE"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

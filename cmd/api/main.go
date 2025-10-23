@@ -25,7 +25,7 @@ func main() {
 
 	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
 
-	userHandler := http.NewUserHandler(userUsecase)
+	userHandler := http.NewUserHandler(userUsecase, &cfg)
 
 	router := http.NewRouter(userHandler)
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/srgjo27/agora/internal/domain"
 	"github.com/srgjo27/agora/internal/usecase"
@@ -39,4 +40,21 @@ func (r *postgresUserRepo) Create(ctx context.Context, user *domain.User) error 
 	_, err := r.db.ExecContext(ctx, query, user.ID, user.Username, user.Email, user.PasswordHash, user.AvatarURL, user.Role, user.CreatedAt)
 
 	return err
+}
+
+func (r *postgresUserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	var user domain.User
+	query := `SELECT id, username, email, password_hash, avatar_url, role, created_at FROM users WHERE id = $1`
+
+	err := r.db.GetContext(ctx, &user, query, id)
+
+	if err == sql.ErrNoRows {
+		return nil, domain.ErrNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

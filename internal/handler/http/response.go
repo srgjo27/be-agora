@@ -28,6 +28,5 @@ func NewUserResponse(user *domain.User) *UserResponse {
 }
 
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken string `json:"access_token"`
 }

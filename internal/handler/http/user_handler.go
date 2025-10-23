@@ -4,16 +4,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/srgjo27/agora/internal/config"
 	"github.com/srgjo27/agora/internal/domain"
 	"github.com/srgjo27/agora/internal/usecase"
 )
 
 type UserHandler struct {
 	userUsecase usecase.UserUsecase
+	cfg         *config.Config
 }
 
-func NewUserHandler(uu usecase.UserUsecase) *UserHandler {
-	return &UserHandler{userUsecase: uu}
+func NewUserHandler(uu usecase.UserUsecase, cfg *config.Config) *UserHandler {
+	return &UserHandler{userUsecase: uu, cfg: cfg}
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
@@ -64,8 +66,41 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("refresh_token", refreshToken, int(h.cfg.RefreshTokenDurationHours*3600), "/api/v1/auth", h.cfg.CookieDomain, h.cfg.CookieSecure, true)
+
 	c.JSON(http.StatusOK, LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken: accessToken,
 	})
+}
+
+func (h *UserHandler) Refresh(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token not found"})
+		return
+	}
+
+	newAccessToken, err := h.userUsecase.Refresh(c.Request.Context(), refreshToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid refresh token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, LoginResponse{
+		AccessToken: newAccessToken,
+	})
+}
+
+func (h *UserHandler) Logout(c *gin.Context) {
+	c.SetCookie(
+		"refresh_token",
+		"",
+		-1,
+		"/api/v1/auth",
+		h.cfg.CookieDomain,
+		h.cfg.CookieSecure,
+		true,
+	)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }

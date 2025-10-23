@@ -89,3 +89,27 @@ func (uc *userUsecase) Register(ctx context.Context, username string, email stri
 
 	return user, nil
 }
+
+func (uc *userUsecase) Refresh(ctx context.Context, refreshToken string) (string, error) {
+	userID, _, err := uc.tokenSvc.ValidateToken(ctx, refreshToken)
+
+	if err != nil {
+		return "", domain.ErrUnauthorized
+	}
+
+	user, err := uc.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			return "", domain.ErrUnauthorized
+		}
+
+		return "", err
+	}
+
+	newAccessToken, err := uc.tokenSvc.GenerateAccessToken(ctx, user)
+	if err != nil {
+		return "", err
+	}
+
+	return newAccessToken, nil
+}
