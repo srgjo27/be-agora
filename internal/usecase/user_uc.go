@@ -11,6 +11,43 @@ import (
 
 type userUsecase struct {
 	userRepo UserRepository
+	tokenSvc TokenService
+}
+
+func NewUserUsecase(ur UserRepository, ts TokenService) UserUsecase {
+	return &userUsecase{userRepo: ur, tokenSvc: ts}
+}
+
+func (uc *userUsecase) Login(ctx context.Context, email string, password string) (string, string, error) {
+	if email == "" || password == "" {
+		return "", "", domain.ErrInvalid
+	}
+
+	user, err := uc.userRepo.GetByEmail(ctx, email)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			return "", "", domain.ErrUnauthorized
+		}
+
+		return "", "", err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
+		return "", "", domain.ErrUnauthorized
+	}
+
+	accessToken, err := uc.tokenSvc.GenerateAccessToken(ctx, user)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err := uc.tokenSvc.GenerateRefreshToken(ctx, user)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
 
 func (uc *userUsecase) GetUserByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
@@ -51,8 +88,4 @@ func (uc *userUsecase) Register(ctx context.Context, username string, email stri
 	}
 
 	return user, nil
-}
-
-func NewUserUsecase(ur UserRepository) UserUsecase {
-	return &userUsecase{userRepo: ur}
 }

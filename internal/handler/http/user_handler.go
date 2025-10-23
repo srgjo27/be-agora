@@ -1,7 +1,6 @@
 package http
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +32,6 @@ func (h *UserHandler) Register(c *gin.Context) {
 		case domain.ErrInvalid:
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 		default:
-			log.Printf("ERROR: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 
@@ -41,4 +39,33 @@ func (h *UserHandler) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, NewUserResponse(user))
+}
+
+func (h *UserHandler) Login(c *gin.Context) {
+	var req LoginRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	accessToken, refreshToken, err := h.userUsecase.Login(c.Request.Context(), req.Email, req.Password)
+
+	if err != nil {
+		switch err {
+		case domain.ErrUnauthorized:
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+		case domain.ErrInvalid:
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
+
+		return
+	}
+
+	c.JSON(http.StatusOK, LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
 }

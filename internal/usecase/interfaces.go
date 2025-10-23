@@ -15,4 +15,10 @@ type UserRepository interface {
 type UserUsecase interface {
 	Register(ctx context.Context, username, email, password string) (*domain.User, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	Login(ctx context.Context, email, password string) (accessToken string, refreshToken string, err error)
+}
+
+type TokenService interface {
+	GenerateAccessToken(ctx context.Context, user *domain.User) (string, error)
+	GenerateRefreshToken(ctx context.Context, user *domain.User) (string, error)
 }

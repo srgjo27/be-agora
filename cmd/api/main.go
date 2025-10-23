@@ -6,6 +6,7 @@ import (
 	"github.com/srgjo27/agora/internal/config"
 	"github.com/srgjo27/agora/internal/handler/http"
 	"github.com/srgjo27/agora/internal/repository/postgres"
+	"github.com/srgjo27/agora/internal/service"
 	"github.com/srgjo27/agora/internal/usecase"
 )
 
@@ -20,7 +21,9 @@ func main() {
 
 	userRepo := postgres.NewPostgresUserRepo(db)
 
-	userUsecase := usecase.NewUserUsecase(userRepo)
+	tokenSvc := service.NewTokenService(&cfg)
+
+	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
 
 	userHandler := http.NewUserHandler(userUsecase)
 

@@ -26,3 +26,8 @@ func NewUserResponse(user *domain.User) *UserResponse {
 		CreatedAt: user.CreatedAt,
 	}
 }
+
+type LoginResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}

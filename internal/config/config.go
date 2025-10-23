@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -13,7 +14,12 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBName     string `mapstructure:"DB_NAME"`
 	DBSslMode  string `mapstructure:"DB_SSLMODE"`
-	APIPort    string `mapstructure:"API_PORT"`
+
+	APIPort string `mapstructure:"API_PORT"`
+
+	JWTSecretKey               string        `mapstructure:"JWT_SECRET_KEY"`
+	AccessTokenDurationMinutes time.Duration `mapstructure:"JWT_ACCESS_TOKEN_MINUTES"`
+	RefreshTokenDurationHours  time.Duration `mapstructure:"JWT_REFRESH_TOKEN_HOURS"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
