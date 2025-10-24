@@ -26,6 +26,6 @@ func ConnectDB(cfg *config.Config) *sqlx.DB {
 		log.Fatalf("Gagal ping database: %v", err)
 	}
 
-	log.Println("Koneksi database berhasil!")
+	log.Printf("Koneksi database berhasil!")
 	return db
 }

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/spf13/viper"
 )
@@ -17,18 +16,16 @@ type Config struct {
 
 	APIPort string `mapstructure:"API_PORT"`
 
-	JWTSecretKey               string        `mapstructure:"JWT_SECRET_KEY"`
-	AccessTokenDurationMinutes time.Duration `mapstructure:"JWT_ACCESS_TOKEN_MINUTES"`
-	RefreshTokenDurationHours  time.Duration `mapstructure:"JWT_REFRESH_TOKEN_HOURS"`
+	JWTSecretKey               string `mapstructure:"JWT_SECRET_KEY"`
+	AccessTokenDurationMinutes int    `mapstructure:"JWT_ACCESS_TOKEN_DURATION_MINUTES"`
+	RefreshTokenDurationHours  int    `mapstructure:"JWT_REFRESH_TOKEN_DURATION_HOURS"`
 
 	CookieDomain string `mapstructure:"COOKIE_DOMAIN"`
 	CookieSecure bool   `mapstructure:"COOKIE_SECURE"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
+	viper.SetConfigFile(".env")
 
 	viper.AutomaticEnv()
 

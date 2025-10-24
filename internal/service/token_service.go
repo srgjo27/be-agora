@@ -27,7 +27,7 @@ func NewTokenService(cfg *config.Config) usecase.TokenService {
 }
 
 func (s *tokenService) GenerateRefreshToken(ctx context.Context, user *domain.User) (string, error) {
-	expirationTime := time.Now().Add(s.cfg.RefreshTokenDurationHours * time.Hour)
+	expirationTime := time.Now().Add(time.Duration(s.cfg.RefreshTokenDurationHours) * time.Hour)
 
 	claims := &jwtClaims{
 		UserID: user.ID,
@@ -44,7 +44,7 @@ func (s *tokenService) GenerateRefreshToken(ctx context.Context, user *domain.Us
 }
 
 func (s *tokenService) GenerateAccessToken(ctx context.Context, user *domain.User) (string, error) {
-	expirationTime := time.Now().Add(s.cfg.AccessTokenDurationMinutes * time.Minute)
+	expirationTime := time.Now().Add(time.Duration(s.cfg.AccessTokenDurationMinutes) * time.Minute)
 
 	claims := &jwtClaims{
 		UserID: user.ID,
@@ -72,7 +72,7 @@ func (s *tokenService) ValidateToken(ctx context.Context, tokenString string) (u
 	})
 
 	if err != nil {
-		return uuid.Nil, "", domain.ErrUnauthorized
+		return uuid.Nil, "", err
 	}
 
 	if !token.Valid {

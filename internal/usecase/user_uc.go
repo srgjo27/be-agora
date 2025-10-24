@@ -51,7 +51,7 @@ func (uc *userUsecase) Login(ctx context.Context, email string, password string)
 }
 
 func (uc *userUsecase) GetUserByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	return nil, nil
+	return uc.userRepo.GetByID(ctx, id)
 }
 
 func (uc *userUsecase) Register(ctx context.Context, username string, email string, password string) (*domain.User, error) {

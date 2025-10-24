@@ -16,6 +16,8 @@ func main() {
 		log.Fatalf("Tidak bisa memuat config: %v", err)
 	}
 
+	log.Printf("[CONFIG] Loaded: APIPort=%s, AccessTokenDuration=%d, SecretKeyIsSet=%t", cfg.APIPort, cfg.AccessTokenDurationMinutes, cfg.JWTSecretKey != "")
+
 	db := postgres.ConnectDB(&cfg)
 	log.Printf("Berhasil terhubung ke DB: %s di host %s", cfg.DBName, cfg.DBHost)
 
@@ -27,7 +29,9 @@ func main() {
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)
 
-	router := http.NewRouter(userHandler)
+	authMiddleware := http.NewAuthMiddleware(tokenSvc)
+
+	router := http.NewRouter(userHandler, authMiddleware)
 
 	serverAddress := ":" + cfg.APIPort
 	log.Printf("Menjalankan server di %s", serverAddress)

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -66,7 +67,15 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("refresh_token", refreshToken, int(h.cfg.RefreshTokenDurationHours*3600), "/api/v1/auth", h.cfg.CookieDomain, h.cfg.CookieSecure, true)
+	c.SetCookie(
+		"refresh_token",
+		refreshToken,
+		int(h.cfg.RefreshTokenDurationHours*3600),
+		"/api/v1/auth",
+		h.cfg.CookieDomain,
+		h.cfg.CookieSecure,
+		true,
+	)
 
 	c.JSON(http.StatusOK, LoginResponse{
 		AccessToken: accessToken,
@@ -103,4 +112,28 @@ func (h *UserHandler) Logout(c *gin.Context) {
 	)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+}
+
+func (h *UserHandler) GetMyProfile(c *gin.Context) {
+	userID, exists := getUserIDFromCtx(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user ID not found in context"})
+
+		return
+	}
+
+	user, err := h.userUsecase.GetUserByID(c.Request.Context(), userID)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+
+			return
+		}
+
+		log.Fatalf("[ERROR]: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, NewUserResponse(user))
 }
