@@ -25,3 +25,14 @@ type TokenService interface {
 	GenerateRefreshToken(ctx context.Context, user *domain.User) (string, error)
 	ValidateToken(ctx context.Context, tokenString string) (uuid.UUID, string, error)
 }
+
+type CategoryRepository interface {
+	Create(ctx context.Context, category *domain.Category) error
+	GetBySlug(ctx context.Context, slug string) (*domain.Category, error)
+	GetAll(ctx context.Context) ([]*domain.Category, error)
+}
+
+type CategoryUsecase interface {
+	Create(ctx context.Context, name string, description *string) (*domain.Category, error)
+	GetAll(ctx context.Context) ([]*domain.Category, error)
+}

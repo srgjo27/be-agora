@@ -5,6 +5,7 @@ import "github.com/gin-gonic/gin"
 func NewRouter(
 	userHandler *UserHandler,
 	authMiddleware *AuthMiddleware,
+	categoryHandler *CategoryHandler,
 ) *gin.Engine {
 	router := gin.Default()
 
@@ -25,7 +26,15 @@ func NewRouter(
 			{
 				users.GET("/me", userHandler.GetMyProfile)
 			}
+
+			admin := protected.Group("")
+			admin.Use(authMiddleware.AdminOnly())
+			{
+				admin.POST("/categories", categoryHandler.Create)
+			}
 		}
+
+		api.GET("/categories", categoryHandler.GetAll)
 	}
 
 	return router

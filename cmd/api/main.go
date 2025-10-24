@@ -22,16 +22,23 @@ func main() {
 	log.Printf("Berhasil terhubung ke DB: %s di host %s", cfg.DBName, cfg.DBHost)
 
 	userRepo := postgres.NewPostgresUserRepo(db)
+	categoryRepo := postgres.NewPostgresCategoryRepo(db)
 
 	tokenSvc := service.NewTokenService(&cfg)
 
 	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
+	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)
+	categoryHandler := http.NewCategoryHandler(categoryUsecase)
 
 	authMiddleware := http.NewAuthMiddleware(tokenSvc)
 
-	router := http.NewRouter(userHandler, authMiddleware)
+	router := http.NewRouter(
+		userHandler,
+		authMiddleware,
+		categoryHandler,
+	)
 
 	serverAddress := ":" + cfg.APIPort
 	log.Printf("Menjalankan server di %s", serverAddress)

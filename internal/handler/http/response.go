@@ -30,3 +30,30 @@ func NewUserResponse(user *domain.User) *UserResponse {
 type LoginResponse struct {
 	AccessToken string `json:"access_token"`
 }
+
+type CategoryResponse struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Description *string   `json:"description,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+func NewCategoryResponse(cat *domain.Category) *CategoryResponse {
+	return &CategoryResponse{
+		ID:          cat.ID,
+		Name:        cat.Name,
+		Slug:        cat.Slug,
+		Description: cat.Description,
+		CreatedAt:   cat.CreatedAt,
+	}
+}
+
+func NewCategoryListResponse(cats []*domain.Category) []*CategoryResponse {
+	list := make([]*CategoryResponse, len(cats))
+	for i, cat := range cats {
+		list[i] = NewCategoryResponse(cat)
+	}
+
+	return list
+}

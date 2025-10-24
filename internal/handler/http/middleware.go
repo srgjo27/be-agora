@@ -65,7 +65,7 @@ func getUserIDFromCtx(ctx *gin.Context) (uuid.UUID, bool) {
 	return id, ok
 }
 
-func getRoleIDFromCtx(ctx *gin.Context) (string, bool) {
+func getUserRoleFromCtx(ctx *gin.Context) (string, bool) {
 	val, ok := ctx.Get(roleCtxKey)
 	if !ok {
 		return "", false
@@ -74,4 +74,23 @@ func getRoleIDFromCtx(ctx *gin.Context) (string, bool) {
 	role, ok := val.(string)
 
 	return role, ok
+}
+
+func (m *AuthMiddleware) AdminOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := getUserRoleFromCtx(c)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "role not found in context"})
+
+			return
+		}
+
+		if role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "admin access required"})
+
+			return
+		}
+
+		c.Next()
+	}
 }
