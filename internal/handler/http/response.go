@@ -57,3 +57,64 @@ func NewCategoryListResponse(cats []*domain.Category) []*CategoryResponse {
 
 	return list
 }
+
+type ThreadSummaryResponse struct {
+	ID         uuid.UUID `json:"id"`
+	Title      string    `json:"title"`
+	Slug       string    `json:"slug"`
+	UserID     uuid.UUID `json:"user_id"`
+	CategoryID uuid.UUID `json:"category_id"`
+	IsPinned   bool      `json:"is_pinned"`
+	IsLocked   bool      `json:"is_locked"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+type ThreadDetailResponse struct {
+	ID         uuid.UUID  `json:"id"`
+	Title      string     `json:"title"`
+	Slug       string     `json:"slug"`
+	Content    string     `json:"content"`
+	UserID     uuid.UUID  `json:"user_id"`
+	CategoryID uuid.UUID  `json:"category_id"`
+	IsPinned   bool       `json:"is_pinned"`
+	IsLocked   bool       `json:"is_locked"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
+}
+
+func NewThreadDetailResponse(t *domain.Thread) *ThreadDetailResponse {
+	return &ThreadDetailResponse{
+		ID:         t.ID,
+		Title:      t.Title,
+		Slug:       t.Slug,
+		Content:    t.Content,
+		UserID:     t.UserID,
+		CategoryID: t.CategoryID,
+		IsPinned:   t.IsPinned,
+		IsLocked:   t.IsLocked,
+		CreatedAt:  t.CreatedAt,
+		UpdatedAt:  t.UpdatedAt,
+	}
+}
+
+func NewThreadSummaryResponse(t *domain.Thread) *ThreadSummaryResponse {
+	return &ThreadSummaryResponse{
+		ID:         t.ID,
+		Title:      t.Title,
+		Slug:       t.Slug,
+		UserID:     t.UserID,
+		CategoryID: t.CategoryID,
+		IsPinned:   t.IsPinned,
+		IsLocked:   t.IsLocked,
+		CreatedAt:  t.CreatedAt,
+	}
+}
+
+func NewThreadListResponse(threads []*domain.Thread) []*ThreadSummaryResponse {
+	list := make([]*ThreadSummaryResponse, len(threads))
+	for i, t := range threads {
+		list[i] = NewThreadSummaryResponse(t)
+	}
+
+	return list
+}

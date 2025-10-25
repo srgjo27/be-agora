@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/srgjo27/agora/internal/domain"
 	"github.com/srgjo27/agora/internal/usecase"
@@ -45,4 +46,17 @@ func (r *postgresCategoryRepo) GetAll(ctx context.Context) ([]*domain.Category, 
 	err := r.db.SelectContext(ctx, &categories, query)
 
 	return categories, err
+}
+
+func (r *postgresCategoryRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Category, error) {
+	var category domain.Category
+
+	query := `SELECT * FROM categories WHERE id = $1`
+
+	err := r.db.GetContext(ctx, &category, query, id)
+	if err == sql.ErrNoRows {
+		return nil, domain.ErrNotFound
+	}
+
+	return &category, err
 }

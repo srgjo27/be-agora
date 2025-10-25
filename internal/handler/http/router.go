@@ -6,6 +6,7 @@ func NewRouter(
 	userHandler *UserHandler,
 	authMiddleware *AuthMiddleware,
 	categoryHandler *CategoryHandler,
+	threadHandler *ThreadHandler,
 ) *gin.Engine {
 	router := gin.Default()
 
@@ -32,9 +33,14 @@ func NewRouter(
 			{
 				admin.POST("/categories", categoryHandler.Create)
 			}
+
+			protected.POST("/threads", threadHandler.Create)
 		}
 
 		api.GET("/categories", categoryHandler.GetAll)
+
+		api.GET("/threads", threadHandler.GetAll)
+		api.GET("/threads/:id", threadHandler.GetByID)
 	}
 
 	return router

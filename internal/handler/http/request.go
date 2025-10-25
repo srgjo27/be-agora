@@ -1,5 +1,7 @@
 package http
 
+import "github.com/google/uuid"
+
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required,min=3"`
 	Email    string `json:"email" binding:"required,email"`
@@ -14,4 +16,10 @@ type LoginRequest struct {
 type CreateCategoryRequest struct {
 	Name        string  `json:"name" binding:"required"`
 	Description *string `json:"description"`
+}
+
+type CreateThreadRequest struct {
+	Title      string    `json:"title" binding:"required,min=5"`
+	Content    string    `json:"content" binding:"required,min=10"`
+	CategoryID uuid.UUID `json:"category_id" binding:"required"`
 }

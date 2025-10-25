@@ -13,24 +13,27 @@ import (
 func main() {
 	cfg, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatalf("Tidak bisa memuat config: %v", err)
+		log.Fatalf("[ERROR]: Tidak bisa memuat config: %v", err)
 	}
 
-	log.Printf("[CONFIG] Loaded: APIPort=%s, AccessTokenDuration=%d, SecretKeyIsSet=%t", cfg.APIPort, cfg.AccessTokenDurationMinutes, cfg.JWTSecretKey != "")
+	log.Printf("[INFO]: APIPort=%s, AccessTokenDuration=%d, SecretKeyIsSet=%t", cfg.APIPort, cfg.AccessTokenDurationMinutes, cfg.JWTSecretKey != "")
 
 	db := postgres.ConnectDB(&cfg)
-	log.Printf("Berhasil terhubung ke DB: %s di host %s", cfg.DBName, cfg.DBHost)
+	log.Printf("[SUCCESS]: Berhasil terhubung ke DB: %s di host %s", cfg.DBName, cfg.DBHost)
 
 	userRepo := postgres.NewPostgresUserRepo(db)
 	categoryRepo := postgres.NewPostgresCategoryRepo(db)
+	threadRepo := postgres.NewPostgresThreadRepo(db)
 
 	tokenSvc := service.NewTokenService(&cfg)
 
 	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
+	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo)
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)
 	categoryHandler := http.NewCategoryHandler(categoryUsecase)
+	threadHandler := http.NewThreadHandler(threadUsecase)
 
 	authMiddleware := http.NewAuthMiddleware(tokenSvc)
 
@@ -38,11 +41,12 @@ func main() {
 		userHandler,
 		authMiddleware,
 		categoryHandler,
+		threadHandler,
 	)
 
 	serverAddress := ":" + cfg.APIPort
-	log.Printf("Menjalankan server di %s", serverAddress)
+	log.Printf("[SUCCESS]: Menjalankan server di %s", serverAddress)
 	if err := router.Run(serverAddress); err != nil {
-		log.Fatalf("Gagal menjalankan server: %v", err)
+		log.Fatalf("[ERROR]: Gagal menjalankan server: %v", err)
 	}
 }

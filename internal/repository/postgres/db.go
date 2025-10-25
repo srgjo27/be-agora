@@ -14,7 +14,7 @@ func ConnectDB(cfg *config.Config) *sqlx.DB {
 
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
-		log.Fatalf("Gagal terhubung ke database: %v", err)
+		log.Fatalf("[ERROR]: Gagal terhubung ke database: %v", err)
 	}
 
 	db.SetMaxOpenConns(25)
@@ -23,9 +23,9 @@ func ConnectDB(cfg *config.Config) *sqlx.DB {
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Gagal ping database: %v", err)
+		log.Fatalf("[ERROR]: Gagal ping database: %v", err)
 	}
 
-	log.Printf("Koneksi database berhasil!")
+	log.Printf("[SUCCESS]: Koneksi database berhasil!")
 	return db
 }

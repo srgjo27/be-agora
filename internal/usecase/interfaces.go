@@ -30,9 +30,22 @@ type CategoryRepository interface {
 	Create(ctx context.Context, category *domain.Category) error
 	GetBySlug(ctx context.Context, slug string) (*domain.Category, error)
 	GetAll(ctx context.Context) ([]*domain.Category, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Category, error)
 }
 
 type CategoryUsecase interface {
 	Create(ctx context.Context, name string, description *string) (*domain.Category, error)
 	GetAll(ctx context.Context) ([]*domain.Category, error)
+}
+
+type ThreadRepository interface {
+	Create(ctx context.Context, thread *domain.Thread) error
+	GetAll(ctx context.Context) ([]*domain.Thread, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
+}
+
+type ThreadUsecase interface {
+	Create(ctx context.Context, title, content string, userID, categoryID uuid.UUID) (*domain.Thread, error)
+	GetAll(ctx context.Context) ([]*domain.Thread, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
 }
