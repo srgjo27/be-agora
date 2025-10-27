@@ -2,6 +2,7 @@ package http
 
 import (
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -50,7 +51,14 @@ func (h *ThreadHandler) Create(c *gin.Context) {
 }
 
 func (h *ThreadHandler) GetAll(c *gin.Context) {
-	threads, err := h.threadUsecase.GetAll(c.Request.Context())
+	params, err := getPaginationParams(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid pagination parameters"})
+
+		return
+	}
+
+	threads, totalItems, err := h.threadUsecase.GetAll(c.Request.Context(), params)
 	if err != nil {
 		log.Fatalf("[ERROR]: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
@@ -58,7 +66,24 @@ func (h *ThreadHandler) GetAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, NewThreadListResponse(threads))
+	totalPages := 0
+	if params.Limit > 0 {
+		totalPages = int(math.Ceil(float64(totalItems) / float64(params.Limit)))
+	}
+
+	meta := PaginationMeta{
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		CurrentPage: (params.Offset / params.Limit) + 1,
+		Limit:       params.Limit,
+	}
+
+	response := PaginatedThreadsResponse{
+		Data: NewThreadListResponse(threads),
+		Meta: meta,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *ThreadHandler) GetByID(c *gin.Context) {

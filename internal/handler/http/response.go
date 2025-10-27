@@ -153,3 +153,15 @@ func NewPostListResponse(posts []*domain.Post) []*PostResponse {
 
 	return list
 }
+
+type PaginationMeta struct {
+	TotalItems  int `json:"total_items"`
+	TotalPages  int `json:"total_pages"`
+	CurrentPage int `json:"current_page"`
+	Limit       int `json:"limit"`
+}
+
+type PaginatedThreadsResponse struct {
+	Data []*ThreadSummaryResponse `json:"data"`
+	Meta PaginationMeta           `json:"meta"`
+}

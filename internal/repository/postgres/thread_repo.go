@@ -25,11 +25,11 @@ func (r *postgresThreadRepo) Create(ctx context.Context, thread *domain.Thread) 
 	return err
 }
 
-func (r *postgresThreadRepo) GetAll(ctx context.Context) ([]*domain.Thread, error) {
+func (r *postgresThreadRepo) GetAll(ctx context.Context, params usecase.PaginationParams) ([]*domain.Thread, error) {
 	var threads []*domain.Thread
 
-	query := `SELECT * FROM threads ORDER BY is_pinned DESC, vote_count DESC, created_at DESC`
-	err := r.db.SelectContext(ctx, &threads, query)
+	query := `SELECT * FROM threads ORDER BY is_pinned DESC, vote_count DESC, created_at  LIMIT $1 OFFSET $2`
+	err := r.db.SelectContext(ctx, &threads, query, params.Limit, params.Offset)
 
 	return threads, err
 }
@@ -57,4 +57,11 @@ func (r *postgresThreadRepo) UpdateVoteCount(ctx context.Context, tx *sqlx.Tx, t
 	_, err := r.db.ExecContext(ctx, query, delta, threadID)
 
 	return err
+}
+
+func (r *postgresThreadRepo) CountAll(ctx context.Context) (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM threads`
+	err := r.db.GetContext(ctx, &count, query)
+	return count, err
 }

@@ -54,8 +54,18 @@ func (uc *threadUsecase) Create(ctx context.Context, title string, content strin
 	return thread, nil
 }
 
-func (uc *threadUsecase) GetAll(ctx context.Context) ([]*domain.Thread, error) {
-	return uc.threadRepo.GetAll(ctx)
+func (uc *threadUsecase) GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, int, error) {
+	total, err := uc.threadRepo.CountAll(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	threads, err := uc.threadRepo.GetAll(ctx, params)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return threads, total, nil
 }
 
 func (uc *threadUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error) {

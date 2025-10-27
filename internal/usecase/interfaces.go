@@ -41,14 +41,15 @@ type CategoryUsecase interface {
 
 type ThreadRepository interface {
 	Create(ctx context.Context, thread *domain.Thread) error
-	GetAll(ctx context.Context) ([]*domain.Thread, error)
+	GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
 	UpdateVoteCount(ctx context.Context, tx *sqlx.Tx, threadID uuid.UUID, delta int) error
+	CountAll(ctx context.Context) (int, error)
 }
 
 type ThreadUsecase interface {
 	Create(ctx context.Context, title, content string, userID, categoryID uuid.UUID) (*domain.Thread, error)
-	GetAll(ctx context.Context) ([]*domain.Thread, error)
+	GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
 }
 
@@ -70,4 +71,9 @@ type VoteRepository interface {
 
 type VoteUsecase interface {
 	VoteOnThread(ctx context.Context, userID, threadID uuid.UUID, voteType int) error
+}
+
+type PaginationParams struct {
+	Limit  int
+	Offset int
 }
