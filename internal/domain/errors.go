@@ -7,4 +7,5 @@ var (
 	ErrNotFound     = errors.New("data tidak ditemukan")
 	ErrInvalid      = errors.New("data tidak valid")
 	ErrUnauthorized = errors.New("autentikasi gagal")
+	ErrThreadLocked = errors.New("thread is locked")
 )

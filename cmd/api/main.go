@@ -24,16 +24,19 @@ func main() {
 	userRepo := postgres.NewPostgresUserRepo(db)
 	categoryRepo := postgres.NewPostgresCategoryRepo(db)
 	threadRepo := postgres.NewPostgresThreadRepo(db)
+	postRepo := postgres.NewPostgresPostRepo(db)
 
 	tokenSvc := service.NewTokenService(&cfg)
 
 	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo)
+	postUsecase := usecase.NewPostUsecase(postRepo, threadRepo)
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)
 	categoryHandler := http.NewCategoryHandler(categoryUsecase)
 	threadHandler := http.NewThreadHandler(threadUsecase)
+	postHandler := http.NewPostHandler(postUsecase)
 
 	authMiddleware := http.NewAuthMiddleware(tokenSvc)
 
@@ -42,6 +45,7 @@ func main() {
 		authMiddleware,
 		categoryHandler,
 		threadHandler,
+		postHandler,
 	)
 
 	serverAddress := ":" + cfg.APIPort

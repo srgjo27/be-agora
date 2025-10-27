@@ -49,3 +49,13 @@ type ThreadUsecase interface {
 	GetAll(ctx context.Context) ([]*domain.Thread, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
 }
+
+type PostRepository interface {
+	Create(ctx context.Context, post *domain.Post) error
+	GetByThreadID(ctx context.Context, threadID uuid.UUID) ([]*domain.Post, error)
+}
+
+type PostUsecase interface {
+	Create(ctx context.Context, content string, userID, threadID uuid.UUID, parentPostID *uuid.UUID) (*domain.Post, error)
+	GetByThreadID(ctx context.Context, threadID uuid.UUID) ([]*domain.Post, error)
+}

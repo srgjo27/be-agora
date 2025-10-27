@@ -23,3 +23,8 @@ type CreateThreadRequest struct {
 	Content    string    `json:"content" binding:"required,min=10"`
 	CategoryID uuid.UUID `json:"category_id" binding:"required"`
 }
+
+type CreatePostRequest struct {
+	Content      string     `json:"content" binding:"required"`
+	ParentPostID *uuid.UUID `json:"parent_post_id"`
+}

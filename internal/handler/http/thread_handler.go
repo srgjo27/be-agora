@@ -62,7 +62,7 @@ func (h *ThreadHandler) GetAll(c *gin.Context) {
 }
 
 func (h *ThreadHandler) GetByID(c *gin.Context) {
-	idParam := c.Param("id")
+	idParam := c.Param("thread_id")
 	threadID, err := uuid.Parse(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread ID"})

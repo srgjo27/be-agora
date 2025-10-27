@@ -118,3 +118,34 @@ func NewThreadListResponse(threads []*domain.Thread) []*ThreadSummaryResponse {
 
 	return list
 }
+
+type PostResponse struct {
+	ID           uuid.UUID  `json:"id"`
+	Content      string     `json:"content"`
+	UserID       uuid.UUID  `json:"user_id"`
+	ThreadID     uuid.UUID  `json:"thread_id"`
+	ParentPostID *uuid.UUID `json:"parent_post_id,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
+}
+
+func NewPostResponse(p *domain.Post) *PostResponse {
+	return &PostResponse{
+		ID:           p.ID,
+		Content:      p.Content,
+		UserID:       p.UserID,
+		ThreadID:     p.ThreadID,
+		ParentPostID: p.ParentPostID,
+		CreatedAt:    p.CreatedAt,
+		UpdatedAt:    p.UpdatedAt,
+	}
+}
+
+func NewPostListResponse(posts []*domain.Post) []*PostResponse {
+	list := make([]*PostResponse, len(posts))
+	for i, p := range posts {
+		list[i] = NewPostResponse(p)
+	}
+
+	return list
+}
