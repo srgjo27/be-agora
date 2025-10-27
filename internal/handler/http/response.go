@@ -165,3 +165,8 @@ type PaginatedThreadsResponse struct {
 	Data []*ThreadSummaryResponse `json:"data"`
 	Meta PaginationMeta           `json:"meta"`
 }
+
+type PaginatedPostsResponse struct {
+	Data []*PostResponse `json:"data"`
+	Meta PaginationMeta  `json:"meta"`
+}

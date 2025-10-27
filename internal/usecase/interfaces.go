@@ -55,12 +55,13 @@ type ThreadUsecase interface {
 
 type PostRepository interface {
 	Create(ctx context.Context, post *domain.Post) error
-	GetByThreadID(ctx context.Context, threadID uuid.UUID) ([]*domain.Post, error)
+	GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, error)
+	CountByThreadID(ctx context.Context, threadID uuid.UUID) (int, error)
 }
 
 type PostUsecase interface {
 	Create(ctx context.Context, content string, userID, threadID uuid.UUID, parentPostID *uuid.UUID) (*domain.Post, error)
-	GetByThreadID(ctx context.Context, threadID uuid.UUID) ([]*domain.Post, error)
+	GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, int, error)
 }
 
 type VoteRepository interface {

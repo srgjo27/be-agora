@@ -2,6 +2,7 @@ package http
 
 import (
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -77,7 +78,14 @@ func (h *PostHandler) GetByThreadID(c *gin.Context) {
 		return
 	}
 
-	posts, err := h.postUsecase.GetByThreadID(c.Request.Context(), threadID)
+	params, err := getPaginationParams(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid pagination parameters"})
+
+		return
+	}
+
+	posts, totalItems, err := h.postUsecase.GetByThreadID(c.Request.Context(), threadID, params)
 	if err != nil {
 		if err == domain.ErrNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
@@ -91,5 +99,22 @@ func (h *PostHandler) GetByThreadID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, NewPostListResponse(posts))
+	totalPages := 0
+	if params.Limit > 0 {
+		totalPages = int(math.Ceil(float64(totalItems) / float64(params.Limit)))
+	}
+
+	meta := PaginationMeta{
+		TotalItems:  totalItems,
+		TotalPages:  totalPages,
+		CurrentPage: (params.Offset / params.Limit) + 1,
+		Limit:       params.Limit,
+	}
+
+	response := PaginatedPostsResponse{
+		Data: NewPostListResponse(posts),
+		Meta: meta,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

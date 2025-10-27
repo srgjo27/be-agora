@@ -52,13 +52,23 @@ func (uc *postUsecase) Create(ctx context.Context, content string, userID uuid.U
 	return post, nil
 }
 
-func (uc *postUsecase) GetByThreadID(ctx context.Context, threadID uuid.UUID) ([]*domain.Post, error) {
+func (uc *postUsecase) GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, int, error) {
 	_, err := uc.threadRepo.GetByID(ctx, threadID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return uc.postRepo.GetByThreadID(ctx, threadID)
+	total, err := uc.postRepo.CountByThreadID(ctx, threadID)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	posts, err := uc.postRepo.GetByThreadID(ctx, threadID, params)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return posts, total, nil
 }
 
 func NewPostUsecase(pr PostRepository, tr ThreadRepository) PostUsecase {
