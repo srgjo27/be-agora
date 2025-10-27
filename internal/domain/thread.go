@@ -15,6 +15,7 @@ type Thread struct {
 	CategoryID uuid.UUID  `db:"category_id"`
 	IsPinned   bool       `db:"is_pinned"`
 	IsLocked   bool       `db:"is_locked"`
+	VoteCount  int        `db:"vote_count"`
 	CreatedAt  time.Time  `db:"created_at"`
 	UpdatedAt  *time.Time `db:"updated_at"`
 }

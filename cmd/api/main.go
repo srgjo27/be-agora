@@ -25,6 +25,7 @@ func main() {
 	categoryRepo := postgres.NewPostgresCategoryRepo(db)
 	threadRepo := postgres.NewPostgresThreadRepo(db)
 	postRepo := postgres.NewPostgresPostRepo(db)
+	voteRepo := postgres.NewPostgresVoteRepo(db)
 
 	tokenSvc := service.NewTokenService(&cfg)
 
@@ -32,11 +33,13 @@ func main() {
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo)
 	postUsecase := usecase.NewPostUsecase(postRepo, threadRepo)
+	voteUsecase := usecase.NewVoteUsecase(db, voteRepo, threadRepo)
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)
 	categoryHandler := http.NewCategoryHandler(categoryUsecase)
 	threadHandler := http.NewThreadHandler(threadUsecase)
 	postHandler := http.NewPostHandler(postUsecase)
+	voteHandler := http.NewVoteHandler(voteUsecase)
 
 	authMiddleware := http.NewAuthMiddleware(tokenSvc)
 
@@ -46,6 +49,7 @@ func main() {
 		categoryHandler,
 		threadHandler,
 		postHandler,
+		voteHandler,
 	)
 
 	serverAddress := ":" + cfg.APIPort

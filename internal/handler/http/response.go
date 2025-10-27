@@ -66,6 +66,7 @@ type ThreadSummaryResponse struct {
 	CategoryID uuid.UUID `json:"category_id"`
 	IsPinned   bool      `json:"is_pinned"`
 	IsLocked   bool      `json:"is_locked"`
+	VoteCount  int       `json:"vote_count"`
 	CreatedAt  time.Time `json:"created_at"`
 }
 
@@ -78,6 +79,7 @@ type ThreadDetailResponse struct {
 	CategoryID uuid.UUID  `json:"category_id"`
 	IsPinned   bool       `json:"is_pinned"`
 	IsLocked   bool       `json:"is_locked"`
+	VoteCount  int        `json:"vote_count"`
 	CreatedAt  time.Time  `json:"created_at"`
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
@@ -92,6 +94,7 @@ func NewThreadDetailResponse(t *domain.Thread) *ThreadDetailResponse {
 		CategoryID: t.CategoryID,
 		IsPinned:   t.IsPinned,
 		IsLocked:   t.IsLocked,
+		VoteCount:  t.VoteCount,
 		CreatedAt:  t.CreatedAt,
 		UpdatedAt:  t.UpdatedAt,
 	}
@@ -106,6 +109,7 @@ func NewThreadSummaryResponse(t *domain.Thread) *ThreadSummaryResponse {
 		CategoryID: t.CategoryID,
 		IsPinned:   t.IsPinned,
 		IsLocked:   t.IsLocked,
+		VoteCount:  t.VoteCount,
 		CreatedAt:  t.CreatedAt,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/srgjo27/agora/internal/domain"
 )
 
@@ -42,6 +43,7 @@ type ThreadRepository interface {
 	Create(ctx context.Context, thread *domain.Thread) error
 	GetAll(ctx context.Context) ([]*domain.Thread, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
+	UpdateVoteCount(ctx context.Context, tx *sqlx.Tx, threadID uuid.UUID, delta int) error
 }
 
 type ThreadUsecase interface {
@@ -58,4 +60,14 @@ type PostRepository interface {
 type PostUsecase interface {
 	Create(ctx context.Context, content string, userID, threadID uuid.UUID, parentPostID *uuid.UUID) (*domain.Post, error)
 	GetByThreadID(ctx context.Context, threadID uuid.UUID) ([]*domain.Post, error)
+}
+
+type VoteRepository interface {
+	GetThreadVote(ctx context.Context, userID, threadID uuid.UUID) (*domain.ThreadVote, error)
+	UpsertThreadVote(ctx context.Context, tx *sqlx.Tx, vote *domain.ThreadVote) error
+	DeleteThreadVote(ctx context.Context, tx *sqlx.Tx, userID, threadID uuid.UUID) error
+}
+
+type VoteUsecase interface {
+	VoteOnThread(ctx context.Context, userID, threadID uuid.UUID, voteType int) error
 }

@@ -8,6 +8,7 @@ func NewRouter(
 	categoryHandler *CategoryHandler,
 	threadHandler *ThreadHandler,
 	postHandler *PostHandler,
+	voteHandler *VoteHandler,
 ) *gin.Engine {
 	router := gin.Default()
 
@@ -38,6 +39,8 @@ func NewRouter(
 			protected.POST("/threads", threadHandler.Create)
 
 			protected.POST("/threads/:thread_id/posts", postHandler.Create)
+
+			protected.POST("/threads/:thread_id/vote", voteHandler.VoteOnThread)
 
 			postsGroup := api.Group("/threads/:thread_id/posts")
 			{

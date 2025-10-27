@@ -28,3 +28,7 @@ type CreatePostRequest struct {
 	Content      string     `json:"content" binding:"required"`
 	ParentPostID *uuid.UUID `json:"parent_post_id"`
 }
+
+type VoteRequest struct {
+	VoteType int `json:"vote_type" binding:"min=-1,max=1"`
+}

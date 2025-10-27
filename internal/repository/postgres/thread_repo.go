@@ -28,7 +28,7 @@ func (r *postgresThreadRepo) Create(ctx context.Context, thread *domain.Thread) 
 func (r *postgresThreadRepo) GetAll(ctx context.Context) ([]*domain.Thread, error) {
 	var threads []*domain.Thread
 
-	query := `SELECT * FROM threads ORDER BY is_pinned DESC, created_at DESC`
+	query := `SELECT * FROM threads ORDER BY is_pinned DESC, vote_count DESC, created_at DESC`
 	err := r.db.SelectContext(ctx, &threads, query)
 
 	return threads, err
@@ -45,4 +45,16 @@ func (r *postgresThreadRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain
 	}
 
 	return &thread, err
+}
+
+func (r *postgresThreadRepo) UpdateVoteCount(ctx context.Context, tx *sqlx.Tx, threadID uuid.UUID, delta int) error {
+	query := `UPDATE threads SET vote_count = vote_count + $1 WHERE id = $2`
+	if tx != nil {
+		_, err := tx.ExecContext(ctx, query, delta, threadID)
+		return err
+	}
+
+	_, err := r.db.ExecContext(ctx, query, delta, threadID)
+
+	return err
 }
