@@ -6,9 +6,5 @@
 .idea/
 *.iml
 
-# Docker
-docker-compose.override.yml
-docker-compose.prod.yml
-
-# Ignore Docker secrets files
-**/secrets/*
+# Database data
+postgres-data/

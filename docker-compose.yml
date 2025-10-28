@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  # 1. Layanan API (Aplikasi Go kita)
+  api:
+    build: . # Build dari Dockerfile di direktori ini
+    container_name: agora-api
+    ports:
+      - "8080:8080" # Map Port PC Anda : Port di dalam Docker
+    env_file:
+      - .env # Inject semua variabel dari file .env
+    depends_on:
+      - db # Tunggu layanan 'db' siap sebelum start
+    restart: on-failure
+
+  # 2. Layanan Database (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: agora-db
+    environment:
+      # Gunakan variabel ini dari file .env Anda
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      # Map Port PC Anda : Port di dalam Docker
+      # Kita gunakan 5433 di PC agar tidak konflik dengan Postgres lokal Anda
+      - "5433:5432"
+    volumes:
+      # Simpan data database di folder 'postgres-data'
+      - ./postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+# Deklarasikan volume agar data DB persisten
+volumes:
+  postgres-data:

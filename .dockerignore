@@ -1,0 +1,8 @@
+# Git
+.git
+.gitignore
+
+# Data & Config Lokal
+.env
+postgres-data/
+*.md
