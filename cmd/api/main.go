@@ -31,7 +31,7 @@ func main() {
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo, userRepo)
 	postUsecase := usecase.NewPostUsecase(postRepo, threadRepo)
-	voteUsecase := usecase.NewVoteUsecase(db, voteRepo, threadRepo)
+	voteUsecase := usecase.NewVoteUsecase(db, voteRepo, threadRepo, postRepo)
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)
 	categoryHandler := http.NewCategoryHandler(categoryUsecase)

@@ -120,6 +120,7 @@ type PostResponse struct {
 	UserID       uuid.UUID  `json:"user_id"`
 	ThreadID     uuid.UUID  `json:"thread_id"`
 	ParentPostID *uuid.UUID `json:"parent_post_id,omitempty"`
+	VoteCount    int        `json:"vote_count"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
 }
@@ -131,6 +132,7 @@ func NewPostResponse(p *domain.Post) *PostResponse {
 		UserID:       p.UserID,
 		ThreadID:     p.ThreadID,
 		ParentPostID: p.ParentPostID,
+		VoteCount:    p.VoteCount,
 		CreatedAt:    p.CreatedAt,
 		UpdatedAt:    p.UpdatedAt,
 	}

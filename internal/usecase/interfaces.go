@@ -68,6 +68,8 @@ type PostRepository interface {
 	Create(ctx context.Context, post *domain.Post) error
 	GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, error)
 	CountByThreadID(ctx context.Context, threadID uuid.UUID) (int, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Post, error)
+	UpdateVoteCount(ctx context.Context, tx *sqlx.Tx, postID uuid.UUID, delta int) error
 }
 
 type PostUsecase interface {
@@ -79,10 +81,15 @@ type VoteRepository interface {
 	GetThreadVote(ctx context.Context, userID, threadID uuid.UUID) (*domain.ThreadVote, error)
 	UpsertThreadVote(ctx context.Context, tx *sqlx.Tx, vote *domain.ThreadVote) error
 	DeleteThreadVote(ctx context.Context, tx *sqlx.Tx, userID, threadID uuid.UUID) error
+
+	GetPostVote(ctx context.Context, userID, postID uuid.UUID) (*domain.ThreadVote, error)
+	UpsertPostVote(ctx context.Context, tx *sqlx.Tx, vote *domain.ThreadVote) error
+	DeletePostVote(ctx context.Context, tx *sqlx.Tx, userID, postID uuid.UUID) error
 }
 
 type VoteUsecase interface {
 	VoteOnThread(ctx context.Context, userID, threadID uuid.UUID, voteType int) error
+	VoteOnPost(ctx context.Context, userID, postID uuid.UUID, voteType int) error
 }
 
 type PaginationParams struct {

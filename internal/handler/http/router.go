@@ -43,6 +43,7 @@ func NewRouter(
 			protected.POST("/threads/:thread_id/posts", postHandler.Create)
 
 			protected.POST("/threads/:thread_id/vote", voteHandler.VoteOnThread)
+			protected.POST("/posts/:post_id/vote", voteHandler.VoteOnPost)
 
 			postsGroup := api.Group("/threads/:thread_id/posts")
 			{
