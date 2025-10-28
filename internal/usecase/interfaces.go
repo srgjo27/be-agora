@@ -12,6 +12,7 @@ type UserRepository interface {
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
 	Create(ctx context.Context, user *domain.User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	GetByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*domain.User, error)
 }
 
 type UserUsecase interface {
@@ -32,6 +33,7 @@ type CategoryRepository interface {
 	GetBySlug(ctx context.Context, slug string) (*domain.Category, error)
 	GetAll(ctx context.Context) ([]*domain.Category, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Category, error)
+	GetByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*domain.Category, error)
 }
 
 type CategoryUsecase interface {
@@ -48,9 +50,9 @@ type ThreadRepository interface {
 }
 
 type ThreadUsecase interface {
-	Create(ctx context.Context, title, content string, userID, categoryID uuid.UUID) (*domain.Thread, error)
-	GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, int, error)
-	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
+	Create(ctx context.Context, title, content string, userID, categoryID uuid.UUID) (*domain.Thread, *domain.User, *domain.Category, error)
+	GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, map[uuid.UUID]*domain.User, map[uuid.UUID]*domain.Category, int, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, *domain.User, *domain.Category, error)
 }
 
 type PostRepository interface {

@@ -34,7 +34,7 @@ func (h *ThreadHandler) Create(c *gin.Context) {
 		return
 	}
 
-	thread, err := h.threadUsecase.Create(c.Request.Context(), req.Title, req.Content, userID, req.CategoryID)
+	thread, user, category, err := h.threadUsecase.Create(c.Request.Context(), req.Title, req.Content, userID, req.CategoryID)
 	if err != nil {
 		if err == domain.ErrInvalid {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input or category ID"})
@@ -47,7 +47,7 @@ func (h *ThreadHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, NewThreadDetailResponse(thread))
+	c.JSON(http.StatusCreated, NewThreadDetailResponse(thread, user, category))
 }
 
 func (h *ThreadHandler) GetAll(c *gin.Context) {
@@ -58,12 +58,17 @@ func (h *ThreadHandler) GetAll(c *gin.Context) {
 		return
 	}
 
-	threads, totalItems, err := h.threadUsecase.GetAll(c.Request.Context(), params)
+	threads, userMap, catMap, totalItems, err := h.threadUsecase.GetAll(c.Request.Context(), params)
 	if err != nil {
 		log.Fatalf("[ERROR]: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 
 		return
+	}
+
+	dtos := make([]*ThreadSummaryResponse, len(threads))
+	for i, t := range threads {
+		dtos[i] = NewThreadSummaryResponse(t, userMap[t.UserID], catMap[t.CategoryID])
 	}
 
 	totalPages := 0
@@ -78,9 +83,9 @@ func (h *ThreadHandler) GetAll(c *gin.Context) {
 		Limit:       params.Limit,
 	}
 
-	response := PaginatedThreadsResponse{
-		Data: NewThreadListResponse(threads),
-		Meta: meta,
+	response := gin.H{
+		"data": dtos,
+		"meta": meta,
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -95,7 +100,7 @@ func (h *ThreadHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	thread, err := h.threadUsecase.GetByID(c.Request.Context(), threadID)
+	thread, user, cat, err := h.threadUsecase.GetByID(c.Request.Context(), threadID)
 	if err != nil {
 		if err == domain.ErrNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
@@ -109,5 +114,6 @@ func (h *ThreadHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, NewThreadDetailResponse(thread))
+	dto := NewThreadDetailResponse(thread, user, cat)
+	c.JSON(http.StatusOK, dto)
 }

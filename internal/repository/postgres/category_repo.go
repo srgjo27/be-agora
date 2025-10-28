@@ -14,6 +14,28 @@ type postgresCategoryRepo struct {
 	db *sqlx.DB
 }
 
+func (r *postgresCategoryRepo) GetByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*domain.Category, error) {
+	categories := []*domain.Category{}
+	query, args, err := sqlx.In(`SELECT id, name, slug, description, created_at FROM categories WHERE id IN (?)`, ids)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query = r.db.Rebind(query)
+	err = r.db.SelectContext(ctx, &categories, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	catMap := make(map[uuid.UUID]*domain.Category)
+	for _, cat := range categories {
+		catMap[cat.ID] = cat
+	}
+
+	return catMap, nil
+}
+
 func NewPostgresCategoryRepo(db *sqlx.DB) usecase.CategoryRepository {
 	return &postgresCategoryRepo{db: db}
 }

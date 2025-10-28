@@ -16,8 +16,6 @@ func main() {
 		log.Fatalf("[ERROR]: Tidak bisa memuat config: %v", err)
 	}
 
-	log.Printf("[INFO]: APIPort=%s, AccessTokenDuration=%d, SecretKeyIsSet=%t", cfg.APIPort, cfg.AccessTokenDurationMinutes, cfg.JWTSecretKey != "")
-
 	db := postgres.ConnectDB(&cfg)
 	log.Printf("[SUCCESS]: Berhasil terhubung ke DB: %s di host %s", cfg.DBName, cfg.DBHost)
 
@@ -31,7 +29,7 @@ func main() {
 
 	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
-	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo)
+	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo, userRepo)
 	postUsecase := usecase.NewPostUsecase(postRepo, threadRepo)
 	voteUsecase := usecase.NewVoteUsecase(db, voteRepo, threadRepo)
 

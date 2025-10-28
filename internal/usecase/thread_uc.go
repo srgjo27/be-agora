@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,27 +13,38 @@ import (
 type threadUsecase struct {
 	threadRepo   ThreadRepository
 	categoryRepo CategoryRepository
+	userRepo     UserRepository
 }
 
-func NewThreadUsecase(tr ThreadRepository, cr CategoryRepository) ThreadUsecase {
+func NewThreadUsecase(tr ThreadRepository, cr CategoryRepository, ur UserRepository) ThreadUsecase {
 	return &threadUsecase{
 		threadRepo:   tr,
 		categoryRepo: cr,
+		userRepo:     ur,
 	}
 }
 
-func (uc *threadUsecase) Create(ctx context.Context, title string, content string, userID uuid.UUID, categoryID uuid.UUID) (*domain.Thread, error) {
+func (uc *threadUsecase) Create(ctx context.Context, title string, content string, userID uuid.UUID, categoryID uuid.UUID) (*domain.Thread, *domain.User, *domain.Category, error) {
 	if title == "" || content == "" {
-		return nil, domain.ErrInvalid
+		return nil, nil, nil, domain.ErrInvalid
 	}
 
-	_, err := uc.categoryRepo.GetByID(ctx, categoryID)
+	category, err := uc.categoryRepo.GetByID(ctx, categoryID)
 	if err != nil {
 		if err == domain.ErrNotFound {
-			return nil, domain.ErrInvalid
+			return nil, nil, nil, domain.ErrInvalid
 		}
 
-		return nil, err
+		return nil, nil, nil, err
+	}
+
+	user, err := uc.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		if err == domain.ErrNotFound {
+			return nil, nil, nil, domain.ErrInvalid
+		}
+
+		return nil, nil, nil, err
 	}
 
 	threadSlug := slug.Make(title)
@@ -45,29 +57,66 @@ func (uc *threadUsecase) Create(ctx context.Context, title string, content strin
 		UserID:     userID,
 		CategoryID: categoryID,
 		CreatedAt:  time.Now(),
+		VoteCount:  0,
 	}
 
 	if err := uc.threadRepo.Create(ctx, thread); err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
-	return thread, nil
+	return thread, user, category, nil
 }
 
-func (uc *threadUsecase) GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, int, error) {
-	total, err := uc.threadRepo.CountAll(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-
+func (uc *threadUsecase) GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, map[uuid.UUID]*domain.User, map[uuid.UUID]*domain.Category, int, error) {
 	threads, err := uc.threadRepo.GetAll(ctx, params)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, nil, 0, err
 	}
 
-	return threads, total, nil
+	total, err := uc.threadRepo.CountAll(ctx)
+	if err != nil {
+		return nil, nil, nil, 0, err
+	}
+
+	if len(threads) == 0 {
+		return []*domain.Thread{}, nil, nil, total, nil
+	}
+
+	userIDs := make([]uuid.UUID, 0)
+	catIDs := make([]uuid.UUID, 0)
+	for _, t := range threads {
+		userIDs = append(userIDs, t.UserID)
+		catIDs = append(catIDs, t.CategoryID)
+	}
+
+	userMap, err := uc.userRepo.GetByIDs(ctx, userIDs)
+	if err != nil {
+		return nil, nil, nil, 0, err
+	}
+
+	catMap, err := uc.categoryRepo.GetByIDs(ctx, catIDs)
+	if err != nil {
+		return nil, nil, nil, 0, err
+	}
+
+	return threads, userMap, catMap, total, nil
 }
 
-func (uc *threadUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error) {
-	return uc.threadRepo.GetByID(ctx, id)
+func (uc *threadUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, *domain.User, *domain.Category, error) {
+	thread, err := uc.threadRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	user, err := uc.userRepo.GetByID(ctx, thread.UserID)
+	if err != nil {
+		log.Printf("[ERROR]: User not found for thread %s: %v", id, err)
+	}
+
+	cat, err := uc.categoryRepo.GetByID(ctx, thread.CategoryID)
+	if err != nil {
+		log.Printf("[ERROR]: Category not found for thread %s: %v", id, err)
+	}
+
+	return thread, user, cat, nil
 }

@@ -58,3 +58,24 @@ func (r *postgresUserRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.U
 
 	return &user, nil
 }
+
+func (r *postgresUserRepo) GetByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*domain.User, error) {
+	users := []*domain.User{}
+	query, args, err := sqlx.In(`SELECT id, username, email, avatar_url, role, created_at FROM users WHERE id IN (?)`, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	query = r.db.Rebind(query)
+	err = r.db.SelectContext(ctx, &users, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	userMap := make(map[uuid.UUID]*domain.User)
+	for _, user := range users {
+		userMap[user.ID] = user
+	}
+
+	return userMap, nil
+}

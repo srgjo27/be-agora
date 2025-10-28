@@ -59,68 +59,59 @@ func NewCategoryListResponse(cats []*domain.Category) []*CategoryResponse {
 }
 
 type ThreadSummaryResponse struct {
-	ID         uuid.UUID `json:"id"`
-	Title      string    `json:"title"`
-	Slug       string    `json:"slug"`
-	UserID     uuid.UUID `json:"user_id"`
-	CategoryID uuid.UUID `json:"category_id"`
-	IsPinned   bool      `json:"is_pinned"`
-	IsLocked   bool      `json:"is_locked"`
-	VoteCount  int       `json:"vote_count"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID        uuid.UUID             `json:"id"`
+	Title     string                `json:"title"`
+	Slug      string                `json:"slug"`
+	Author    *AuthorResponse       `json:"author"`
+	Category  *CategoryInfoResponse `json:"category"`
+	IsPinned  bool                  `json:"is_pinned"`
+	IsLocked  bool                  `json:"is_locked"`
+	VoteCount int                   `json:"vote_count"`
+	CreatedAt time.Time             `json:"created_at"`
 }
 
 type ThreadDetailResponse struct {
-	ID         uuid.UUID  `json:"id"`
-	Title      string     `json:"title"`
-	Slug       string     `json:"slug"`
-	Content    string     `json:"content"`
-	UserID     uuid.UUID  `json:"user_id"`
-	CategoryID uuid.UUID  `json:"category_id"`
-	IsPinned   bool       `json:"is_pinned"`
-	IsLocked   bool       `json:"is_locked"`
-	VoteCount  int        `json:"vote_count"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
+	ID        uuid.UUID             `json:"id"`
+	Title     string                `json:"title"`
+	Slug      string                `json:"slug"`
+	Content   string                `json:"content"`
+	Author    *AuthorResponse       `json:"author"`
+	Category  *CategoryInfoResponse `json:"category"`
+	IsPinned  bool                  `json:"is_pinned"`
+	IsLocked  bool                  `json:"is_locked"`
+	VoteCount int                   `json:"vote_count"`
+	CreatedAt time.Time             `json:"created_at"`
+	UpdatedAt *time.Time            `json:"updated_at,omitempty"`
 }
 
-func NewThreadDetailResponse(t *domain.Thread) *ThreadDetailResponse {
+func NewThreadDetailResponse(t *domain.Thread, author *domain.User, cat *domain.Category) *ThreadDetailResponse {
 	return &ThreadDetailResponse{
-		ID:         t.ID,
-		Title:      t.Title,
-		Slug:       t.Slug,
-		Content:    t.Content,
-		UserID:     t.UserID,
-		CategoryID: t.CategoryID,
-		IsPinned:   t.IsPinned,
-		IsLocked:   t.IsLocked,
-		VoteCount:  t.VoteCount,
-		CreatedAt:  t.CreatedAt,
-		UpdatedAt:  t.UpdatedAt,
+		ID:        t.ID,
+		Title:     t.Title,
+		Slug:      t.Slug,
+		Content:   t.Content,
+		Author:    NewAuhtorResponse(author),
+		Category:  NewCategoryInfoResponse(cat),
+		IsPinned:  t.IsPinned,
+		IsLocked:  t.IsLocked,
+		VoteCount: t.VoteCount,
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
 	}
 }
 
-func NewThreadSummaryResponse(t *domain.Thread) *ThreadSummaryResponse {
+func NewThreadSummaryResponse(t *domain.Thread, author *domain.User, cat *domain.Category) *ThreadSummaryResponse {
 	return &ThreadSummaryResponse{
-		ID:         t.ID,
-		Title:      t.Title,
-		Slug:       t.Slug,
-		UserID:     t.UserID,
-		CategoryID: t.CategoryID,
-		IsPinned:   t.IsPinned,
-		IsLocked:   t.IsLocked,
-		VoteCount:  t.VoteCount,
-		CreatedAt:  t.CreatedAt,
+		ID:        t.ID,
+		Title:     t.Title,
+		Slug:      t.Slug,
+		Author:    NewAuhtorResponse(author),
+		Category:  NewCategoryInfoResponse(cat),
+		IsPinned:  t.IsPinned,
+		IsLocked:  t.IsLocked,
+		VoteCount: t.VoteCount,
+		CreatedAt: t.CreatedAt,
 	}
-}
-
-func NewThreadListResponse(threads []*domain.Thread) []*ThreadSummaryResponse {
-	list := make([]*ThreadSummaryResponse, len(threads))
-	for i, t := range threads {
-		list[i] = NewThreadSummaryResponse(t)
-	}
-
-	return list
 }
 
 type PostResponse struct {
@@ -169,4 +160,40 @@ type PaginatedThreadsResponse struct {
 type PaginatedPostsResponse struct {
 	Data []*PostResponse `json:"data"`
 	Meta PaginationMeta  `json:"meta"`
+}
+
+type AuthorResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Username  string    `json:"username"`
+	AvatarURL *string   `json:"avatar_url"`
+}
+
+type CategoryInfoResponse struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	Slug string    `json:"slug"`
+}
+
+func NewAuhtorResponse(user *domain.User) *AuthorResponse {
+	if user == nil {
+		return nil
+	}
+
+	return &AuthorResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		AvatarURL: user.AvatarURL,
+	}
+}
+
+func NewCategoryInfoResponse(cat *domain.Category) *CategoryInfoResponse {
+	if cat == nil {
+		return nil
+	}
+
+	return &CategoryInfoResponse{
+		ID:   cat.ID,
+		Name: cat.Name,
+		Slug: cat.Slug,
+	}
 }
