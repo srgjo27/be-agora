@@ -117,3 +117,87 @@ func (h *ThreadHandler) GetByID(c *gin.Context) {
 	dto := NewThreadDetailResponse(thread, user, cat)
 	c.JSON(http.StatusOK, dto)
 }
+
+func (h *ThreadHandler) Delete(c *gin.Context) {
+	idParam := c.Param("thread_id")
+	threadID, err := uuid.Parse(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread ID"})
+
+		return
+	}
+
+	userID, exists := getUserIDFromCtx(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+
+		return
+	}
+
+	role, _ := getUserRoleFromCtx(c)
+
+	err = h.threadUsecase.Delete(c.Request.Context(), threadID, userID, role)
+	if err != nil {
+		switch err {
+		case domain.ErrNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
+		case domain.ErrForbidden:
+			c.JSON(http.StatusForbidden, gin.H{"error": "you are not authorized to delete this thread"})
+		default:
+			log.Fatalf("[ERROR]: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "thread deleted successfully"})
+}
+
+func (h *ThreadHandler) Update(c *gin.Context) {
+	idParam := c.Param("thread_id")
+	threadID, err := uuid.Parse(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread ID"})
+
+		return
+	}
+
+	var req UpdateThreadRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	userID, exists := getUserIDFromCtx(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+
+		return
+	}
+
+	role, _ := getUserRoleFromCtx(c)
+
+	params := usecase.UpdateThreadParams{
+		Title:   req.Title,
+		Content: req.Content,
+	}
+
+	thread, user, cat, err := h.threadUsecase.Update(c.Request.Context(), threadID, userID, role, params)
+	if err != nil {
+		switch err {
+		case domain.ErrNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
+		case domain.ErrForbidden:
+			c.JSON(http.StatusForbidden, gin.H{"error": "you are not authorized to update this thread"})
+		default:
+			log.Fatalf("[ERROR]: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		}
+
+		return
+	}
+
+	c.JSON(http.StatusOK, NewThreadDetailResponse(thread, user, cat))
+}

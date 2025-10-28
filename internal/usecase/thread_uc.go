@@ -120,3 +120,61 @@ func (uc *threadUsecase) GetByID(ctx context.Context, id uuid.UUID) (*domain.Thr
 
 	return thread, user, cat, nil
 }
+
+func (uc *threadUsecase) Delete(ctx context.Context, threadID, userID uuid.UUID, role string) error {
+	thread, err := uc.threadRepo.GetByID(ctx, threadID)
+	if err != nil {
+		return err
+	}
+
+	isOwner := thread.UserID == userID
+	isAdmin := role == "admin"
+
+	if !isOwner && !isAdmin {
+		return domain.ErrForbidden
+	}
+
+	return uc.threadRepo.Delete(ctx, threadID)
+}
+
+func (uc *threadUsecase) Update(ctx context.Context, threadID uuid.UUID, userID uuid.UUID, role string, params UpdateThreadParams) (*domain.Thread, *domain.User, *domain.Category, error) {
+	thread, err := uc.threadRepo.GetByID(ctx, threadID)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	isOwner := thread.UserID == userID
+	isAdmin := role == "admin"
+
+	if !isOwner && !isAdmin {
+		return nil, nil, nil, domain.ErrForbidden
+	}
+
+	if params.Title != nil {
+		thread.Title = *params.Title
+		thread.Slug = slug.Make(*params.Title)
+	}
+
+	if params.Content != nil {
+		thread.Content = *params.Content
+	}
+
+	now := time.Now()
+	thread.UpdatedAt = &now
+
+	if err := uc.threadRepo.Update(ctx, thread); err != nil {
+		return nil, nil, nil, err
+	}
+
+	user, err := uc.userRepo.GetByID(ctx, thread.UserID)
+	if err != nil {
+		log.Fatalf("[ERROR]: User not found for thread %s: %v", thread.ID, err)
+	}
+
+	cat, err := uc.categoryRepo.GetByID(ctx, thread.CategoryID)
+	if err != nil {
+		log.Fatalf("[ERROR]: Category not found for thread %s: %v", thread.ID, err)
+	}
+
+	return thread, user, cat, nil
+}

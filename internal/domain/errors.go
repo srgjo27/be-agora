@@ -8,4 +8,5 @@ var (
 	ErrInvalid      = errors.New("data tidak valid")
 	ErrUnauthorized = errors.New("autentikasi gagal")
 	ErrThreadLocked = errors.New("thread is locked")
+	ErrForbidden    = errors.New("forbidden")
 )

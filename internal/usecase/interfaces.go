@@ -41,18 +41,27 @@ type CategoryUsecase interface {
 	GetAll(ctx context.Context) ([]*domain.Category, error)
 }
 
+type UpdateThreadParams struct {
+	Title   *string
+	Content *string
+}
+
 type ThreadRepository interface {
 	Create(ctx context.Context, thread *domain.Thread) error
 	GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, error)
 	UpdateVoteCount(ctx context.Context, tx *sqlx.Tx, threadID uuid.UUID, delta int) error
 	CountAll(ctx context.Context) (int, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, thread *domain.Thread) error
 }
 
 type ThreadUsecase interface {
 	Create(ctx context.Context, title, content string, userID, categoryID uuid.UUID) (*domain.Thread, *domain.User, *domain.Category, error)
 	GetAll(ctx context.Context, params PaginationParams) ([]*domain.Thread, map[uuid.UUID]*domain.User, map[uuid.UUID]*domain.Category, int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.Thread, *domain.User, *domain.Category, error)
+	Delete(ctx context.Context, threadID, userID uuid.UUID, role string) error
+	Update(ctx context.Context, threadID, userID uuid.UUID, role string, params UpdateThreadParams) (*domain.Thread, *domain.User, *domain.Category, error)
 }
 
 type PostRepository interface {

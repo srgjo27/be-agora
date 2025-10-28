@@ -37,6 +37,8 @@ func NewRouter(
 			}
 
 			protected.POST("/threads", threadHandler.Create)
+			protected.DELETE("/threads/:thread_id", threadHandler.Delete)
+			protected.PATCH("/threads/:thread_id", threadHandler.Update)
 
 			protected.POST("/threads/:thread_id/posts", postHandler.Create)
 

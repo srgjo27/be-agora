@@ -32,3 +32,8 @@ type CreatePostRequest struct {
 type VoteRequest struct {
 	VoteType int `json:"vote_type" binding:"min=-1,max=1"`
 }
+
+type UpdateThreadRequest struct {
+	Title   *string `json:"title" binding:"omitempty,min=5"`
+	Content *string `json:"content" binding:"omitempty,min=10"`
+}
