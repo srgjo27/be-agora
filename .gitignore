@@ -8,3 +8,9 @@
 
 # Database data
 postgres-data/
+
+# Build
+/bin
+
+# Docus
+/docs

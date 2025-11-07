@@ -12,6 +12,8 @@ func NewRouter(
 ) *gin.Engine {
 	router := gin.Default()
 
+	router.Use(SetupCORS())
+
 	api := router.Group("/api/v1")
 	{
 		auth := api.Group("/auth")
