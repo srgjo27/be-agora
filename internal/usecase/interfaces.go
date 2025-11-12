@@ -74,7 +74,7 @@ type PostRepository interface {
 
 type PostUsecase interface {
 	Create(ctx context.Context, content string, userID, threadID uuid.UUID, parentPostID *uuid.UUID) (*domain.Post, error)
-	GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, int, error)
+	GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, map[uuid.UUID]*domain.User, int, error)
 }
 
 type VoteRepository interface {

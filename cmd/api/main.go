@@ -30,7 +30,7 @@ func main() {
 	userUsecase := usecase.NewUserUsecase(userRepo, tokenSvc)
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 	threadUsecase := usecase.NewThreadUsecase(threadRepo, categoryRepo, userRepo)
-	postUsecase := usecase.NewPostUsecase(postRepo, threadRepo)
+	postUsecase := usecase.NewPostUsecase(postRepo, threadRepo, userRepo)
 	voteUsecase := usecase.NewVoteUsecase(db, voteRepo, threadRepo, postRepo)
 
 	userHandler := http.NewUserHandler(userUsecase, &cfg)

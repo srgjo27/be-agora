@@ -11,6 +11,15 @@ import (
 type postUsecase struct {
 	postRepo   PostRepository
 	threadRepo ThreadRepository
+	userRepo   UserRepository
+}
+
+func NewPostUsecase(pr PostRepository, tr ThreadRepository, ur UserRepository) PostUsecase {
+	return &postUsecase{
+		postRepo:   pr,
+		threadRepo: tr,
+		userRepo:   ur,
+	}
 }
 
 func (uc *postUsecase) Create(ctx context.Context, content string, userID uuid.UUID, threadID uuid.UUID, parentPostID *uuid.UUID) (*domain.Post, error) {
@@ -52,28 +61,31 @@ func (uc *postUsecase) Create(ctx context.Context, content string, userID uuid.U
 	return post, nil
 }
 
-func (uc *postUsecase) GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, int, error) {
+func (uc *postUsecase) GetByThreadID(ctx context.Context, threadID uuid.UUID, params PaginationParams) ([]*domain.Post, map[uuid.UUID]*domain.User, int, error) {
 	_, err := uc.threadRepo.GetByID(ctx, threadID)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, 0, err
 	}
 
 	total, err := uc.postRepo.CountByThreadID(ctx, threadID)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, 0, err
 	}
 
 	posts, err := uc.postRepo.GetByThreadID(ctx, threadID, params)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, 0, err
 	}
 
-	return posts, total, nil
-}
-
-func NewPostUsecase(pr PostRepository, tr ThreadRepository) PostUsecase {
-	return &postUsecase{
-		postRepo:   pr,
-		threadRepo: tr,
+	userIDs := make([]uuid.UUID, 0)
+	for _, p := range posts {
+		userIDs = append(userIDs, p.UserID)
 	}
+
+	userMap, err := uc.userRepo.GetByIDs(ctx, userIDs)
+	if err != nil {
+		return nil, nil, 0, err
+	}
+
+	return posts, userMap, total, nil
 }

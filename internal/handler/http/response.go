@@ -90,7 +90,7 @@ func NewThreadDetailResponse(t *domain.Thread, author *domain.User, cat *domain.
 		Title:     t.Title,
 		Slug:      t.Slug,
 		Content:   t.Content,
-		Author:    NewAuhtorResponse(author),
+		Author:    NewAuthorResponse(author),
 		Category:  NewCategoryInfoResponse(cat),
 		IsPinned:  t.IsPinned,
 		IsLocked:  t.IsLocked,
@@ -105,7 +105,7 @@ func NewThreadSummaryResponse(t *domain.Thread, author *domain.User, cat *domain
 		ID:        t.ID,
 		Title:     t.Title,
 		Slug:      t.Slug,
-		Author:    NewAuhtorResponse(author),
+		Author:    NewAuthorResponse(author),
 		Category:  NewCategoryInfoResponse(cat),
 		IsPinned:  t.IsPinned,
 		IsLocked:  t.IsLocked,
@@ -115,21 +115,21 @@ func NewThreadSummaryResponse(t *domain.Thread, author *domain.User, cat *domain
 }
 
 type PostResponse struct {
-	ID           uuid.UUID  `json:"id"`
-	Content      string     `json:"content"`
-	UserID       uuid.UUID  `json:"user_id"`
-	ThreadID     uuid.UUID  `json:"thread_id"`
-	ParentPostID *uuid.UUID `json:"parent_post_id,omitempty"`
-	VoteCount    int        `json:"vote_count"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
+	ID           uuid.UUID       `json:"id"`
+	Content      string          `json:"content"`
+	Author       *AuthorResponse `json:"author"`
+	ThreadID     uuid.UUID       `json:"thread_id"`
+	ParentPostID *uuid.UUID      `json:"parent_post_id,omitempty"`
+	VoteCount    int             `json:"vote_count"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    *time.Time      `json:"updated_at,omitempty"`
 }
 
-func NewPostResponse(p *domain.Post) *PostResponse {
+func NewPostResponse(p *domain.Post, author *domain.User) *PostResponse {
 	return &PostResponse{
 		ID:           p.ID,
 		Content:      p.Content,
-		UserID:       p.UserID,
+		Author:       NewAuthorResponse(author),
 		ThreadID:     p.ThreadID,
 		ParentPostID: p.ParentPostID,
 		VoteCount:    p.VoteCount,
@@ -138,30 +138,11 @@ func NewPostResponse(p *domain.Post) *PostResponse {
 	}
 }
 
-func NewPostListResponse(posts []*domain.Post) []*PostResponse {
-	list := make([]*PostResponse, len(posts))
-	for i, p := range posts {
-		list[i] = NewPostResponse(p)
-	}
-
-	return list
-}
-
 type PaginationMeta struct {
 	TotalItems  int `json:"total_items"`
 	TotalPages  int `json:"total_pages"`
 	CurrentPage int `json:"current_page"`
 	Limit       int `json:"limit"`
-}
-
-type PaginatedThreadsResponse struct {
-	Data []*ThreadSummaryResponse `json:"data"`
-	Meta PaginationMeta           `json:"meta"`
-}
-
-type PaginatedPostsResponse struct {
-	Data []*PostResponse `json:"data"`
-	Meta PaginationMeta  `json:"meta"`
 }
 
 type AuthorResponse struct {
@@ -176,7 +157,7 @@ type CategoryInfoResponse struct {
 	Slug string    `json:"slug"`
 }
 
-func NewAuhtorResponse(user *domain.User) *AuthorResponse {
+func NewAuthorResponse(user *domain.User) *AuthorResponse {
 	if user == nil {
 		return nil
 	}

@@ -67,7 +67,7 @@ func (h *PostHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, NewPostResponse(post))
+	c.JSON(http.StatusOK, NewPostResponse(post, nil))
 }
 
 func (h *PostHandler) GetByThreadID(c *gin.Context) {
@@ -85,7 +85,7 @@ func (h *PostHandler) GetByThreadID(c *gin.Context) {
 		return
 	}
 
-	posts, totalItems, err := h.postUsecase.GetByThreadID(c.Request.Context(), threadID, params)
+	posts, userMap, totalItems, err := h.postUsecase.GetByThreadID(c.Request.Context(), threadID, params)
 	if err != nil {
 		if err == domain.ErrNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
@@ -97,6 +97,11 @@ func (h *PostHandler) GetByThreadID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 
 		return
+	}
+
+	dtos := make([]*PostResponse, len(posts))
+	for i, p := range posts {
+		dtos[i] = NewPostResponse(p, userMap[p.UserID])
 	}
 
 	totalPages := 0
@@ -111,9 +116,9 @@ func (h *PostHandler) GetByThreadID(c *gin.Context) {
 		Limit:       params.Limit,
 	}
 
-	response := PaginatedPostsResponse{
-		Data: NewPostListResponse(posts),
-		Meta: meta,
+	response := gin.H{
+		"data": dtos,
+		"meta": meta,
 	}
 
 	c.JSON(http.StatusOK, response)
