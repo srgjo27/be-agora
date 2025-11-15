@@ -27,6 +27,15 @@ func NewUserResponse(user *domain.User) *UserResponse {
 	}
 }
 
+func NewUserListResponse(users []*domain.User) []*UserResponse {
+	list := make([]*UserResponse, len(users))
+	for i, user := range users {
+		list[i] = NewUserResponse(user)
+	}
+
+	return list
+}
+
 type LoginResponse struct {
 	AccessToken string `json:"access_token"`
 }

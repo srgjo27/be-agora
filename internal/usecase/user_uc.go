@@ -113,3 +113,7 @@ func (uc *userUsecase) Refresh(ctx context.Context, refreshToken string) (string
 
 	return newAccessToken, nil
 }
+
+func (uc *userUsecase) GetUsers(ctx context.Context) ([]*domain.User, error) {
+	return uc.userRepo.GetUsers(ctx)
+}

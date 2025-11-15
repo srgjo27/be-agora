@@ -79,3 +79,13 @@ func (r *postgresUserRepo) GetByIDs(ctx context.Context, ids []uuid.UUID) (map[u
 
 	return userMap, nil
 }
+
+func (r *postgresUserRepo) GetUsers(ctx context.Context) ([]*domain.User, error) {
+	var users []*domain.User
+
+	query := `SELECT * FROM users ORDER BY created_at ASC`
+
+	err := r.db.SelectContext(ctx, &users, query)
+
+	return users, err
+}

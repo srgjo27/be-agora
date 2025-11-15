@@ -13,6 +13,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
 	GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	GetByIDs(ctx context.Context, ids []uuid.UUID) (map[uuid.UUID]*domain.User, error)
+	GetUsers(ctx context.Context) ([]*domain.User, error)
 }
 
 type UserUsecase interface {
@@ -20,6 +21,7 @@ type UserUsecase interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	Login(ctx context.Context, email, password string) (accessToken string, refreshToken string, err error)
 	Refresh(ctx context.Context, refreshToken string) (newAccessToken string, err error)
+	GetUsers(ctx context.Context) ([]*domain.User, error)
 }
 
 type TokenService interface {

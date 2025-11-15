@@ -32,10 +32,11 @@ func NewRouter(
 				users.GET("/me", userHandler.GetMyProfile)
 			}
 
-			admin := protected.Group("")
+			admin := protected.Group("/admin")
 			admin.Use(authMiddleware.AdminOnly())
 			{
 				admin.POST("/categories", categoryHandler.Create)
+				admin.GET("/users", userHandler.GetUsers)
 			}
 
 			protected.POST("/threads", threadHandler.Create)
@@ -47,9 +48,9 @@ func NewRouter(
 			protected.POST("/threads/:thread_id/vote", voteHandler.VoteOnThread)
 			protected.POST("/posts/:post_id/vote", voteHandler.VoteOnPost)
 
-			postsGroup := api.Group("/threads/:thread_id/posts")
+			postsGroup := api.Group("")
 			{
-				postsGroup.GET("", postHandler.GetByThreadID)
+				postsGroup.GET("/threads/:thread_id/posts", postHandler.GetByThreadID)
 			}
 		}
 

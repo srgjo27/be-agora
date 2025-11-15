@@ -137,3 +137,15 @@ func (h *UserHandler) GetMyProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, NewUserResponse(user))
 }
+
+func (h *UserHandler) GetUsers(c *gin.Context) {
+	users, err := h.userUsecase.GetUsers(c.Request.Context())
+	if err != nil {
+		log.Fatalf("[ERROR]: %v", err)
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, NewUserListResponse(users))
+}
