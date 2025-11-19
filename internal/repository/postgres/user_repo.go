@@ -83,7 +83,7 @@ func (r *postgresUserRepo) GetByIDs(ctx context.Context, ids []uuid.UUID) (map[u
 func (r *postgresUserRepo) GetUsers(ctx context.Context) ([]*domain.User, error) {
 	var users []*domain.User
 
-	query := `SELECT * FROM users ORDER BY created_at ASC`
+	query := `SELECT * FROM users WHERE NOT role = 'admin' ORDER BY created_at ASC`
 
 	err := r.db.SelectContext(ctx, &users, query)
 
