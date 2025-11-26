@@ -77,6 +77,10 @@ func (uc *postUsecase) GetByThreadID(ctx context.Context, threadID uuid.UUID, pa
 		return nil, nil, 0, err
 	}
 
+	if len(posts) == 0 {
+		return []*domain.Post{}, map[uuid.UUID]*domain.User{}, total, nil
+	}
+
 	userIDs := make([]uuid.UUID, 0)
 	for _, p := range posts {
 		userIDs = append(userIDs, p.UserID)

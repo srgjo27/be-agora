@@ -93,7 +93,7 @@ func (h *PostHandler) GetByThreadID(c *gin.Context) {
 			return
 		}
 
-		log.Fatalf("[ERROR]: %v", err)
+		log.Printf("[ERROR]: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 
 		return
