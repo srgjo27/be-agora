@@ -144,7 +144,7 @@ func (h *ThreadHandler) Delete(c *gin.Context) {
 		case domain.ErrForbidden:
 			c.JSON(http.StatusForbidden, gin.H{"error": "you are not authorized to delete this thread"})
 		default:
-			log.Fatalf("[ERROR]: %v", err)
+			log.Printf("[ERROR]: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 

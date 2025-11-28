@@ -28,7 +28,7 @@ func (r *postgresThreadRepo) Create(ctx context.Context, thread *domain.Thread) 
 func (r *postgresThreadRepo) GetAll(ctx context.Context, params usecase.PaginationParams) ([]*domain.Thread, error) {
 	var threads []*domain.Thread
 
-	query := `SELECT * FROM threads ORDER BY is_pinned DESC, vote_count DESC, created_at  LIMIT $1 OFFSET $2`
+	query := `SELECT * FROM threads ORDER BY is_pinned DESC, created_at DESC LIMIT $1 OFFSET $2`
 	err := r.db.SelectContext(ctx, &threads, query, params.Limit, params.Offset)
 
 	return threads, err
