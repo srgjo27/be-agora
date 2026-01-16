@@ -24,6 +24,10 @@ func NewRouter(
 			auth.POST("/logout", userHandler.Logout)
 		}
 
+		api.GET("/categories", categoryHandler.GetAll)
+		api.GET("/threads", threadHandler.GetAll)
+		api.GET("/threads/:thread_id", threadHandler.GetByID)
+
 		protected := api.Group("")
 		protected.Use(authMiddleware.Authenticate())
 		{
@@ -42,10 +46,9 @@ func NewRouter(
 			protected.POST("/threads", threadHandler.Create)
 			protected.DELETE("/threads/:thread_id", threadHandler.Delete)
 			protected.PATCH("/threads/:thread_id", threadHandler.Update)
-
 			protected.POST("/threads/:thread_id/posts", postHandler.Create)
-
 			protected.POST("/threads/:thread_id/vote", voteHandler.VoteOnThread)
+
 			protected.POST("/posts/:post_id/vote", voteHandler.VoteOnPost)
 
 			postsGroup := api.Group("")
@@ -53,11 +56,6 @@ func NewRouter(
 				postsGroup.GET("/threads/:thread_id/posts", postHandler.GetByThreadID)
 			}
 		}
-
-		api.GET("/categories", categoryHandler.GetAll)
-
-		api.GET("/threads", threadHandler.GetAll)
-		api.GET("/threads/:thread_id", threadHandler.GetByID)
 	}
 
 	return router

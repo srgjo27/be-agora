@@ -24,6 +24,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	user, err := h.userUsecase.Register(c.Request.Context(), req.Username, req.Email, req.Password)
@@ -35,6 +36,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		case domain.ErrInvalid:
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 		default:
+			log.Printf("[ERROR] Register failed: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		}
 
@@ -130,7 +132,7 @@ func (h *UserHandler) GetMyProfile(c *gin.Context) {
 			return
 		}
 
-		log.Fatalf("[ERROR]: %v", err)
+		log.Printf("[ERROR] GetMyProfile failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
 	}
@@ -141,7 +143,7 @@ func (h *UserHandler) GetMyProfile(c *gin.Context) {
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	users, err := h.userUsecase.GetUsers(c.Request.Context())
 	if err != nil {
-		log.Fatalf("[ERROR]: %v", err)
+		log.Printf("[ERROR] GetUsers failed: %v", err)
 
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return
