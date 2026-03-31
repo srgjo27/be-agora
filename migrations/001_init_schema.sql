@@ -121,7 +121,7 @@ VALUES (
     uuid_generate_v4(),
     'admin',
     'admin@agora.com',
-    '$2a$10$YourHashedPasswordHere', -- Replace with actual bcrypt hash
+    'password', -- Replace with actual bcrypt hash
     'admin',
     NOW()
 ) ON CONFLICT (email) DO NOTHING;

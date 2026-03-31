@@ -1,8 +1,8 @@
-# BE-Agora 🏛️
+# BE-Agora
 
 Backend API untuk platform diskusi dan forum berbasis Go. Agora adalah platform modern yang memungkinkan pengguna untuk membuat thread diskusi, berinteraksi melalui posting, dan memberikan vote pada konten.
 
-## 🎯 Tentang Proyek
+## Tentang Proyek
 
 BE-Agora adalah backend API yang dibangun dengan Go menggunakan arsitektur Clean Architecture. Platform ini menyediakan fitur-fitur untuk:
 
@@ -13,7 +13,7 @@ BE-Agora adalah backend API yang dibangun dengan Go menggunakan arsitektur Clean
 - Kategorisasi konten
 - Caching dengan Redis
 
-## 🚀 Teknologi
+## Teknologi
 
 ### Backend
 
@@ -36,7 +36,7 @@ github.com/google/uuid           // UUID generation
 golang.org/x/crypto              // Cryptography
 ```
 
-## 🏗️ Arsitektur
+## Arsitektur
 
 Proyek ini menggunakan **Clean Architecture** dengan struktur:
 
@@ -72,7 +72,7 @@ be-agora/
 3. **Repository Layer** - Data access abstraction
 4. **Domain Layer** - Core business entities
 
-## 📦 Instalasi
+## Instalasi
 
 ### Prerequisites
 
@@ -93,7 +93,7 @@ cd be-agora
 go mod download
 ```
 
-## ⚙️ Konfigurasi
+## Konfigurasi
 
 1. **Buat file `.env`** berdasarkan template:
 
@@ -116,7 +116,7 @@ PORT=8080
    - File `docker-compose.yml` sudah dikonfigurasi
    - Sesuaikan environment variables sesuai kebutuhan
 
-## 🚀 Menjalankan Aplikasi
+## Menjalankan Aplikasi
 
 ### Dengan Docker (Recommended)
 
@@ -141,7 +141,7 @@ go run cmd/api/main.go
 
 Server akan berjalan di `http://localhost:8080`
 
-## 📚 API Documentation
+## API Documentation
 
 ### Base URL
 
@@ -155,11 +155,11 @@ http://localhost:8080/api/v1
 - Ikuti konvensi penamaan Go
 - Update dokumentasi sesuai perubahan
 
-## 📄 License
+## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## 📞 Kontak
+## Kontak
 
 **Project Link**: [https://github.com/srgjo27/be-agora](https://github.com/srgjo27/be-agora)
 

@@ -5,6 +5,7 @@ Folder ini berisi SQL migration files untuk database Agora.
 ## Quick Start
 
 ### Option 1: Jalankan Full Schema (Recommended)
+
 Jalankan file ini untuk membuat semua tabel sekaligus:
 
 ```bash
@@ -12,6 +13,7 @@ psql -U postgres -d agora_db -f migrations/001_init_schema.sql
 ```
 
 ### Option 2: Jalankan Step-by-Step
+
 Jika ingin bertahap, mulai dengan users table:
 
 ```bash
@@ -55,8 +57,8 @@ Setelah menjalankan migration, verifikasi dengan:
 \dt
 
 -- Atau dengan query
-SELECT table_name 
-FROM information_schema.tables 
+SELECT table_name
+FROM information_schema.tables
 WHERE table_schema = 'public';
 
 -- Check struktur users table
@@ -66,6 +68,7 @@ WHERE table_schema = 'public';
 ## Struktur Database
 
 ### Tables:
+
 - `users` - User accounts
 - `categories` - Forum categories
 - `threads` - Discussion threads
@@ -74,6 +77,7 @@ WHERE table_schema = 'public';
 - `post_votes` - Votes on posts
 
 ### Relationships:
+
 - `threads.user_id` → `users.id`
 - `threads.category_id` → `categories.id`
 - `posts.user_id` → `users.id`

@@ -11,10 +11,8 @@ func NewRouter(
 	voteHandler *VoteHandler,
 ) *gin.Engine {
 	router := gin.Default()
-
 	router.Use(SetupCORS())
-
-	api := router.Group("/api/v1")
+	api := router.Group("/api")
 	{
 		auth := api.Group("/auth")
 		{
@@ -48,13 +46,8 @@ func NewRouter(
 			protected.PATCH("/threads/:thread_id", threadHandler.Update)
 			protected.POST("/threads/:thread_id/posts", postHandler.Create)
 			protected.POST("/threads/:thread_id/vote", voteHandler.VoteOnThread)
-
 			protected.POST("/posts/:post_id/vote", voteHandler.VoteOnPost)
-
-			postsGroup := api.Group("")
-			{
-				postsGroup.GET("/threads/:thread_id/posts", postHandler.GetByThreadID)
-			}
+			protected.GET("/threads/:thread_id/posts", postHandler.GetByThreadID)
 		}
 	}
 
